@@ -1,0 +1,54 @@
+#include <stdio.h>
+
+#define MAX_FRAMES 3 
+int isPageInMemory(int page, int frames[], int n) {
+    for (int i = 0; i < n; i++) {
+        if (frames[i] == page) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+void displayMemory(int frames[], int n) {
+    for (int i = 0; i < n; i++) {
+        if (frames[i] == -1) {
+            printf("- ");
+        } else {
+            printf("%d ", frames[i]);
+        }
+    }
+    printf("\n");
+}
+
+int main() {
+    int referenceString[] = {1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5}; 
+    int n = sizeof(referenceString) / sizeof(referenceString[0]); 
+    int frames[MAX_FRAMES]; 
+    int pageFaults = 0; 
+
+    
+    for (int i = 0; i < MAX_FRAMES; i++) {
+        frames[i] = -1;
+    }
+
+   
+    int currentIndex = 0; 
+
+    for (int i = 0; i < n; i++) {
+        if (!isPageInMemory(referenceString[i], frames, MAX_FRAMES)) {
+            pageFaults++;
+            frames[currentIndex] = referenceString[i];
+            currentIndex = (currentIndex + 1) % MAX_FRAMES;
+        }
+
+        
+        printf("Reference %d: ", referenceString[i]);
+        displayMemory(frames, MAX_FRAMES);
+    }
+
+    printf("Total Page Faults: %d\n", pageFaults);
+
+    return 0;
+}
