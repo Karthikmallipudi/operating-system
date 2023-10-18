@@ -1,0 +1,99 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
+#define MAX_CYLINDERS 200
+
+
+void sort(int requests[], int n) {
+    int temp;
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (requests[j] > requests[j + 1]) {
+                temp = requests[j];
+                requests[j] = requests[j + 1];
+                requests[j + 1] = temp;
+            }
+        }
+    }
+}
+
+
+void CSCAN(int requests[], int n, int start) {
+    sort(requests, n);
+
+    int seekSequence[MAX_CYLINDERS];
+    int totalSeekTime = 0;
+    int currentIndex = start;
+    int rightBound = MAX_CYLINDERS - 1;
+
+    int i = 0;
+    while (i < n && requests[i] < start) {
+        i++;
+    }
+
+    int j = i;
+
+    
+    while (i < n) {
+        seekSequence[i - j] = requests[i] - currentIndex;
+        totalSeekTime += abs(requests[i] - currentIndex);
+        currentIndex = requests[i];
+        i++;
+    }
+
+    
+    seekSequence[i - j] = rightBound - currentIndex + 1;
+    totalSeekTime += rightBound - currentIndex + 1;
+    currentIndex = 0;
+
+    
+    while (i - j < n) {
+        seekSequence[i - j] = requests[i - j] - currentIndex;
+        totalSeekTime += abs(requests[i - j] - currentIndex);
+        currentIndex = requests[i - j];
+        i++;
+    }
+
+    printf("Seek Sequence: ");
+    for (int k = 0; k < n; k++) {
+        printf("%d ", seekSequence[k]);
+    }
+    printf("\n");
+
+    printf("Total Seek Time: %d\n", totalSeekTime);
+}
+
+int main() {
+    int n, start, requests[MAX_CYLINDERS];
+
+    printf("Enter the number of disk requests: ");
+    scanf("%d", &n);
+
+    if (n <= 0 || n > MAX_CYLINDERS) {
+        printf("Invalid number of requests.\n");
+        return 1;
+    }
+
+    printf("Enter the current head position: ");
+    scanf("%d", &start);
+
+    if (start < 0 || start >= MAX_CYLINDERS) {
+        printf("Invalid starting position.\n");
+        return 1;
+    }
+
+    printf("Enter the disk requests: ");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &requests[i]);
+        if (requests[i] < 0 || requests[i] >= MAX_CYLINDERS) {
+            printf("Invalid request position.\n");
+            return 1;
+        }
+    }
+
+    printf("Simulating C-SCAN Disk Scheduling Algorithm\n");
+    CSCAN(requests, n, start);
+
+    return 0;
+}
