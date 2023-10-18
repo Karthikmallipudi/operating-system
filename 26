@@ -1,0 +1,91 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    FILE *file;
+    char fileName[100];
+    char content[1000];
+    char data[1000];
+
+    int choice;
+
+    while (1) {
+        printf("\nFile Management Operations:\n");
+        printf("1. Create a new file\n");
+        printf("2. Read from a file\n");
+        printf("3. Write to a file\n");
+        printf("4. Delete a file\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter the name of the file to create: ");
+                scanf("%s", fileName);
+                file = fopen(fileName, "w");
+
+                if (file == NULL) {
+                    perror("fopen");
+                } else {
+                    printf("File created successfully.\n");
+                    fclose(file);
+                }
+                break;
+
+            case 2:
+                printf("Enter the name of the file to read: ");
+                scanf("%s", fileName);
+                file = fopen(fileName, "r");
+
+                if (file == NULL) {
+                    perror("fopen");
+                } else {
+                    while (fgets(data, sizeof(data), file) != NULL) {
+                        printf("%s", data);
+                    }
+                    fclose(file);
+                }
+                break;
+
+            case 3:
+                printf("Enter the name of the file to write to: ");
+                scanf("%s", fileName);
+                file = fopen(fileName, "a");
+
+                if (file == NULL) {
+                    perror("fopen");
+                } else {
+                    printf("Enter content (type 'end' on a new line to finish):\n");
+                    while (1) {
+                        scanf(" %[^\n]", content);
+                        if (strcmp(content, "end") == 0) {
+                            break;
+                        }
+                        fprintf(file, "%s\n", content);
+                    }
+                    fclose(file);
+                    printf("Data written to the file.\n");
+                }
+                break;
+
+            case 4:
+                printf("Enter the name of the file to delete: ");
+                scanf("%s", fileName);
+                if (remove(fileName) == 0) {
+                    printf("File deleted successfully.\n");
+                } else {
+                    perror("remove");
+                }
+                break;
+
+            case 5:
+                exit(0);
+
+            default:
+                printf("Invalid choice. Try again.\n");
+        }
+    }
+
+    return 0;
+}
