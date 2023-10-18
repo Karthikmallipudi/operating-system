@@ -1,0 +1,105 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct MemoryBlock {
+    int block_id;
+    int size;
+    int is_allocated;
+    struct MemoryBlock* next;
+};
+
+struct MemoryBlock* allocate(struct MemoryBlock* head, int requested_size) {
+    struct MemoryBlock* current = head;
+
+    while (current != NULL) {
+        if (!current->is_allocated && current->size >= requested_size) {
+            current->is_allocated = 1;
+            printf("Allocated memory block %d of size %d\n", current->block_id, requested_size);
+            return head;
+        }
+        current = current->next;
+    }
+
+    printf("Memory allocation failed for size %d\n", requested_size);
+    return head;
+}
+
+struct MemoryBlock* deallocate(struct MemoryBlock* head, int block_id) {
+    struct MemoryBlock* current = head;
+
+    while (current != NULL) {
+        if (current->block_id == block_id) {
+            if (current->is_allocated) {
+                current->is_allocated = 0;
+                printf("Deallocated memory block %d\n", block_id);
+            } else {
+                printf("Block %d is already deallocated\n", block_id);
+            }
+            return head;
+        }
+        current = current->next;
+    }
+
+    printf("Memory block %d not found\n", block_id);
+    return head;
+}
+
+void printMemoryStatus(struct MemoryBlock* head) {
+    struct MemoryBlock* current = head;
+
+    printf("Memory Status:\n");
+    while (current != NULL) {
+        printf("Block %d: Size = %d, Allocated = %s\n", current->block_id, current->size,
+               current->is_allocated ? "Yes" : "No");
+        current = current->next;
+    }
+}
+
+int main() {
+    struct MemoryBlock* head = NULL;
+    int block_id = 1;
+    int total_memory_size;
+    int choice, requested_size;
+
+    printf("Enter the total memory size: ");
+    scanf("%d", &total_memory_size);
+
+    while (1) {
+        printf("\n1. Allocate memory\n2. Deallocate memory\n3. Print memory status\n4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter the size of memory to allocate: ");
+                scanf("%d", &requested_size);
+                if (requested_size <= 0) {
+                    printf("Invalid size\n");
+                } else {
+                    if (head == NULL) {
+                        head = (struct MemoryBlock*)malloc(sizeof(struct MemoryBlock));
+                        head->block_id = block_id++;
+                        head->size = total_memory_size;
+                        head->is_allocated = 0;
+                        head->next = NULL;
+                    }
+                    head = allocate(head, requested_size);
+                }
+                break;
+            case 2:
+                printf("Enter the block ID to deallocate: ");
+                scanf("%d", &block_id);
+                head = deallocate(head, block_id);
+                break;
+            case 3:
+                printMemoryStatus(head);
+                break;
+            case 4:
+                exit(0);
+            default:
+                printf("Invalid choice\n");
+        }
+    }
+
+    return 0;
+}
