@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+
+#define MAX_FRAMES 3
+
+
+#define MAX_PAGES 10
+
+
+void displayPageTable(int pageTable[], int n) {
+    for (int i = 0; i < n; i++) {
+        if (pageTable[i] == -1) {
+            printf(" - ");
+        } else {
+            printf("%2d ", pageTable[i]);
+        }
+    }
+    printf("\n");
+}
+
+
+void simulateLRU(int pages[], int n) {
+    int pageTable[MAX_FRAMES];
+    int pageHits = 0;
+    int pageFaults = 0;
+
+    for (int i = 0; i < MAX_FRAMES; i++) {
+        pageTable[i] = -1;
+    }
+
+    for (int i = 0; i < n; i++) {
+        bool pageFound = false;
+
+        
+        for (int j = 0; j < MAX_FRAMES; j++) {
+            if (pageTable[j] == pages[i]) {
+                pageHits++;
+                pageFound = true;
+                break;
+            }
+        }
+
+       
+        if (!pageFound) {
+            int lruPage = -1;
+            int lruIndex = -1;
+
+            for (int j = 0; j < MAX_FRAMES; j++) {
+                int k = i - 1;
+                while (k >= 0) {
+                    if (pageTable[j] == pages[k]) {
+                        if (k > lruIndex) {
+                            lruIndex = k;
+                            lruPage = j;
+                        }
+                        break;
+                    }
+                    k--;
+                }
+            }
+
+            if (lruPage != -1) {
+                pageTable[lruPage] = pages[i];
+                pageFaults++;
+            }
+        }
+
+       
+        printf("Reference %2d: ", pages[i]);
+        displayPageTable(pageTable, MAX_FRAMES);
+    }
+
+    printf("Page Hits: %d\n", pageHits);
+    printf("Page Faults: %d\n", pageFaults);
+}
+
+int main() {
+    int pages[MAX_PAGES] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3};
+    int n = sizeof(pages) / sizeof(pages[0]);
+
+    printf("Simulating LRU Paging Algorithm\n");
+    simulateLRU(pages, n);
+
+    return 0;
+}
