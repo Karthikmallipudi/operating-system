@@ -1,0 +1,95 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Maximum number of cylinders on the disk
+#define MAX_CYLINDERS 200
+
+// Function to sort an array in ascending order
+void sort(int requests[], int n) {
+    int temp;
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (requests[j] > requests[j + 1]) {
+                temp = requests[j];
+                requests[j] = requests[j + 1];
+                requests[j + 1] = temp;
+            }
+        }
+    }
+}
+
+// Function to simulate the SCAN disk scheduling algorithm
+void SCAN(int requests[], int n, int start) {
+    sort(requests, n);
+
+    int seekSequence[MAX_CYLINDERS];
+    int totalSeekTime = 0;
+    int currentIndex = 0;
+    int direction = 1; // 1 for moving right, -1 for moving left
+
+    int previousIndex = -1;
+    int leftBound = 0;
+    int rightBound = MAX_CYLINDERS - 1;
+
+    for (int i = 0; i < n; i++) {
+        seekSequence[i] = currentIndex;
+        totalSeekTime += abs(currentIndex - requests[i]);
+
+        if (direction == 1) {
+            if (currentIndex >= rightBound) {
+                direction = -1;
+                rightBound = previousIndex;
+            }
+        } else {
+            if (currentIndex <= leftBound) {
+                direction = 1;
+                leftBound = previousIndex;
+            }
+        }
+
+        previousIndex = currentIndex;
+        currentIndex += direction;
+    }
+
+    printf("Seek Sequence: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", seekSequence[i]);
+    }
+    printf("\n");
+
+    printf("Total Seek Time: %d\n", totalSeekTime);
+}
+
+int main() {
+    int n, start, requests[MAX_CYLINDERS];
+
+    printf("Enter the number of disk requests: ");
+    scanf("%d", &n);
+
+    if (n <= 0 || n > MAX_CYLINDERS) {
+        printf("Invalid number of requests.\n");
+        return 1;
+    }
+
+    printf("Enter the current head position: ");
+    scanf("%d", &start);
+
+    if (start < 0 || start >= MAX_CYLINDERS) {
+        printf("Invalid starting position.\n");
+        return 1;
+    }
+
+    printf("Enter the disk requests: ");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &requests[i]);
+        if (requests[i] < 0 || requests[i] >= MAX_CYLINDERS) {
+            printf("Invalid request position.\n");
+            return 1;
+        }
+    }
+
+    printf("Simulating SCAN Disk Scheduling Algorithm\n");
+    SCAN(requests, n, start);
+
+    return 0;
+}
